@@ -22,7 +22,7 @@ model_parameters = {
 # sub-class the Engine and create your custom update function for each cell of the simulation
 class MySim(GfxEngine):
   
-    #ghj
+    #
     # for each cell, your simulation logic goes here
     #  
     #  delta                - time elapsed between simulation step (ms)
