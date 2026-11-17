@@ -19,6 +19,12 @@ model_parameters = {
 
 ### USEFUL FUNCTIONS HERE ###
 
+clamper = u.clamp(0.05, 2)
+
+def fire_slope(dH, scale):
+    H = m.sqrt(dH * dH + scale * scale)
+    return clamper(1 + 30*m.sin(dH / H))
+
 # sub-class the Engine and create your custom update function for each cell of the simulation
 class MySim(GfxEngine):
   
