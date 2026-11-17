@@ -1,0 +1,1 @@
+python main.py terrain/slope/slope.npy

@@ -1,0 +1,1 @@
+python main.py terrain/big/big.npy
