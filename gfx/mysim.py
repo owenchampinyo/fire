@@ -29,12 +29,11 @@ def fire_slope(dH, scale):
 
 def fire_wind(fire_wind):
     fire_direction = (other_row, other_col)- (row, col)
-    module1 = m.sqrt(fire_direction[0]** + fire_direction[1]**)
+    module1 = m.sqrt(fire_direction[0] + fire_direction[1])
     vec.wind_direction = (m.cos(wind_direction) * wind_intensity, m.sin(wind_direction) * wind_intensity)
     angle = m.arccos((np.dot([fire_direction, vec.wind_direction]))/(module1*wind_intesity))
     return clamper(1 + m.cos(angle))
 
-def 
 # sub-class the Engine and create your custom update function for each cell of the simulation
 class MySim(GfxEngine):
   
@@ -62,7 +61,7 @@ class MySim(GfxEngine):
            
             # in the event of ignition turning into fire change the current cell to fire 
             if random() <= probability_of_fire:
-                self.set_state(row, col, self.model.STATE_FIRE, self.model.get_max_fire_time())
+                self.set_state(row, col, self.model.STATE_FIRE, self.model.get_parameter_value("max_fire_time"))
         else:
 
             # for each of the valid surrounding cells 
@@ -78,10 +77,18 @@ class MySim(GfxEngine):
                     ### *** do your total probability calculation here *** ###
 
                     # calculate the slope between the current cell and the other cell
-                    slope = (self.model.get_height(other_row, other_col) - self.model.get_height(row, col)) / self.model.get_scale()
+                    slope = (self.model.get_height(other_row, other_col) - self.model.get_height(row, col)) / self.model.get_parameter_value("scale")
           
                     # calculate the final probability of fire spreading
-                    prob_wind = wind_direction(self.model.get_wind_direction())
+                    
+                    d_row = other_row - row
+                    d_col = other_col - col
+                    
+                    theta = (m.acos(d_row) * 180) / m.pi
+                    
+                    print("d_row %d, d_col %d, theta %f, wind direction %f" % (d_row, d_col, theta, self.model.get_parameter_value("wind_direction")))
+                    
+                    prob_wind = 1 #fire_wind(self.model.get_parameter_value("wind_direction"))
 
                     prob_slope = 0.01 if slope < 0 else 1 
  
@@ -96,5 +103,5 @@ class MySim(GfxEngine):
 
                     # in the event of fire spread, change the other cell to an ignition
                     if random() <= probability_of_fire_spread:
-                        self.set_state(other_row, other_col, self.model.STATE_IGNITION, self.model.get_max_ignition_time())
+                        self.set_state(other_row, other_col, self.model.STATE_IGNITION, self.model.get_parameter_value("max_ignition_time"))
 

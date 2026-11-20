@@ -4,17 +4,17 @@ from random import random, seed
 
 # states 
 #
-# 0 - nothing, rock!
-# 1 - vegitation
-# 2 - ignition 
-# 3 - fire 
-# 4 - burned
+# -1 - sea!
+#  0 - nothing, rock!
+#  1 - vegitation
+#  2 - ignition 
+#  3 - fire 
+#  4 - burned
 
 #
 # this class holds the model data used by the sim engine
 #
 class Model:
-
     STATE_WATER = -1
     STATE_NOTHING = 0 
     STATE_VEGITATION = 1
@@ -34,23 +34,21 @@ class Model:
         self.__rows = height_data.shape[0]
         self.__cols = height_data.shape[1]
         self.__height_data = height_data
-        self.__seed = parameters["seed"]
-        self.__scale = parameters["scale"]
+        self.__parameters = parameters
+        scale = self.get_parameter_value("scale")
+        dx, dy = np.gradient(self.__height_data, scale, scale)
+        self.__slope_data = np.degrees(np.arctan(np.hypot(dx, dy)))
         self.__max_height = np.max(self.__height_data)
         self.__min_height = np.min(self.__height_data, 
                                    where = np.greater(self.__height_data, 0), 
                                    initial = self.__max_height)
         self.__valid_range = m.valid_range(0, self.__rows, 0, self.__cols)
 
-        # startup parameters
-        self.__veg_probability = parameters["veg_probability"]
-        self.__veg_density_decay = parameters["veg_density_decay"]
-        self.__veg_humidity_decay = parameters["veg_humidity_decay"]
-        self.__max_ignition_time = parameters["max_ignition_time"]
-        self.__max_fire_time = parameters["max_fire_time"]
-        self.__wind_direction = parameters["wind_direction"]
-        self.__sun_angle = parameters["sun_angle"]
- 
+        print("dimensions   - rows %d, cols %d, scale %d" % (self.__rows, self.__cols, scale))
+        print("height       - min %f, max %f" % (np.min(self.__height_data), np.max(self.__height_data)))
+        print("model height - min %f, max %f" % (self.__min_height, self.__max_height))
+        print("slope        - min %f, max %f" % (np.min(self.__slope_data), np.max(self.__slope_data)))
+
     #
     # initialise the model, take the base data (height) and derive other data
     #
@@ -62,12 +60,12 @@ class Model:
     # 4 vegitation humidity 
     #
     def init(self):
-        seed(self.__seed)
+        seed(self.get_parameter_value("seed"))
         self.__modified = np.zeros((self.__rows, self.__cols))
         self.__state = np.zeros((self.__rows, self.__cols, self.ATTRIBUTE_COUNT))
         height_lerper = m.lerp(self.__min_height, self.__max_height)
-        veg_density_decayer = m.decay(self.__veg_density_decay)
-        veg_humidity_decayer = m.decay(self.__veg_humidity_decay)
+        veg_density_decayer = m.decay(self.get_parameter_value("veg_density_decay"))
+        veg_humidity_decayer = m.decay(self.get_parameter_value("veg_humidity_decay"))
         clamper = m.clamp(0, 1)
         for row in range(self.__rows):
             for col in range(self.__cols):
@@ -81,58 +79,25 @@ class Model:
                     veg_density = clamper(veg_density_decay)
                     veg_humidity_decay = veg_humidity_decayer(height_lerp)
                     veg_humidity = clamper(veg_humidity_decay)
-                    if random() < self.__veg_probability * veg_density:
+                    if random() < self.get_parameter_value("veg_probability") * veg_density:
                         self.__state[(row, col)] = [self.STATE_VEGITATION, 0, 0, veg_density, veg_humidity]
                     else:
                         self.__state[(row, col)] = [self.STATE_NOTHING, 0, 0, 0, 0]
 
-    def get_veg_probability(self):
-        return self.__veg_probability
+    def get_parameters(self):
+        return self.__parameters
 
-    def set_veg_probability(self, v):
-        self.__veg_probability = v 
+    def get_parameter_title(self, name):
+        return self.__parameters[name]["title"]
 
-    def get_veg_density_decay(self):
-        return self.__veg_density_decay
+    def get_parameter_type(self, name):
+        return self.__parameters[name]["type"]
 
-    def set_veg_density_decay(self, v):
-        self.__veg_density_decay = v 
+    def get_parameter_value(self, name):
+        return self.__parameters[name]["value"]
 
-    def get_veg_humidity_decay(self):
-        return self.__veg_humidity_decay
-
-    def set_veg_humidity_decay(self, v):
-        self.__veg_humidity_decay = v 
-   
-    def get_max_fire_time(self):
-        return self.__max_fire_time
-
-    def set_max_fire_time(self, v):
-        self.__max_fire_time = v 
-
-    def get_max_ignition_time(self):
-        return self.__max_ignition_time
-
-    def set_max_ignition_time(self, v):
-        self.__max_ignition_time = v 
-
-    def get_wind_direction(self):
-        return self.__wind_direction
-
-    def set_wind_direction(self, v):
-        self.__wind_direction = v 
-
-    def get_sun_angle(self):
-        return self.__sun_angle
-
-    def set_sun_angle(self, v):
-        self.__sun_angle = v 
-
-    def print(self, row, col):
-        print("(%d, %d, %d) - height %d, veg %f num %f" % (row, col, self.get_state(row, col), 
-             self.get_height(row, col), 
-             self.get_state_veg_density(row, col), 
-             self.get_state_veg_humidity(row, col)))
+    def set_parameter_value(self, name, value):
+        self.__parameters[name]["value"] = value
 
     def get_state(self, row, col):
         return self.__state[(row, col)][self.IDX_STATE]
@@ -192,6 +157,9 @@ class Model:
 
     def get_max_height(self):
         return self.__max_height
+
+    def get_slope(self, row, col):
+        return self.__slope_data[row, col]
 
     def is_valid_range(self, row, col):
         return self.__valid_range(row, col)

@@ -1,0 +1,15 @@
+{
+  "label":
+  {
+    "font":
+    {
+      "name": "helvetica",
+      "size": "14",
+      "bold": "1"
+    },
+    "misc":
+    {
+      "text_horiz_alignment": "left"
+    }
+  }
+}
