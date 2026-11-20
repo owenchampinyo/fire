@@ -2,6 +2,7 @@ from gfx.engine import GfxEngine
 from random import random
 import math as m
 import util.math as u
+import numpy as np
 
 ### PUT YOUR CUSTOM FUNCTIONS HERE ###
 
@@ -26,9 +27,14 @@ def fire_slope(dH, scale):
     H = m.sqrt(dH * dH + scale * scale)
     return clamper(1 + 30*m.sin(dH / H))
 
-def wind_direction(wind_direction):
-    return clamper(1 + m.cos(wind_direction))
+def fire_wind(fire_wind):
+    fire_direction = (other_row, other_col)- (row, col)
+    module1 = m.sqrt(fire_direction[0]** + fire_direction[1]**)
+    vec.wind_direction = (m.cos(wind_direction) * wind_intensity, m.sin(wind_direction) * wind_intensity)
+    angle = m.arccos((np.dot([fire_direction, vec.wind_direction]))/(module1*wind_intesity))
+    return clamper(1 + m.cos(angle))
 
+def 
 # sub-class the Engine and create your custom update function for each cell of the simulation
 class MySim(GfxEngine):
   
