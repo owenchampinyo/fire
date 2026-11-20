@@ -1,0 +1,12 @@
+{
+  "seed": { "title": "seed", "type": "int", "value": 1234 },
+  "scale": { "title": "scale (m)", "type": "int", "value": 30 },
+  "veg_probability": { "title": "vegitation probability", "type": "float", "value": 0.9 },
+  "veg_density_decay": { "title": "vegitation density decay", "type": "float", "value": 1.0 },
+  "veg_humidity_decay": { "title": "vegitation humidity decay", "type": "float", "value": 2.0 },
+  "max_ignition_time": { "title": "max ignition time (ms)", "type": "int", "value": 500 },
+  "max_fire_time": { "title": "max fire time (ms)", "type": "int", "value": 2000 },
+  "wind_direction": { "title": "wind direction (degrees)", "type": "int", "value": 0 },
+  "wind_speed": { "title": "wind speed (m/s)", "type": "int", "value": 0 },
+  "sun_angle": { "title": "sun angle (degrees)", "type": "int", "value": 45 }
+}
