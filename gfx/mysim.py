@@ -1,6 +1,7 @@
 from gfx.engine import GfxEngine
 from random import random
 import math as m
+import util.math as u
 
 ### PUT YOUR CUSTOM FUNCTIONS HERE ###
 
@@ -24,6 +25,9 @@ clamper = u.clamp(0.05, 2)
 def fire_slope(dH, scale):
     H = m.sqrt(dH * dH + scale * scale)
     return clamper(1 + 30*m.sin(dH / H))
+
+def wind_direction(wind_direction):
+    return clamper(1 + m.cos(wind_direction))
 
 # sub-class the Engine and create your custom update function for each cell of the simulation
 class MySim(GfxEngine):
@@ -71,7 +75,7 @@ class MySim(GfxEngine):
                     slope = (self.model.get_height(other_row, other_col) - self.model.get_height(row, col)) / self.model.get_scale()
           
                     # calculate the final probability of fire spreading
-                    #prob_wind = 1
+                    prob_wind = wind_direction(self.model.get_wind_direction())
 
                     prob_slope = 0.01 if slope < 0 else 1 
  
@@ -81,7 +85,8 @@ class MySim(GfxEngine):
 
                     #prob_humidity = 1
 
-                    probability_of_fire_spread = prob_density * prob_slope 
+                    probability_of_fire_spread = prob_wind
+                    # prob_density * prob_slope * prob_wind
 
                     # in the event of fire spread, change the other cell to an ignition
                     if random() <= probability_of_fire_spread:
