@@ -23,6 +23,32 @@ model_parameters = {
 
 clamper = u.clamp(0.05, 2)
 
+directions = {
+    (-1, 0): 0,
+    (-1, 1): 45,
+    (0, 1): 90,
+    (1, 1): 135,
+    (1, 0): 180,
+    (1, -1): 225,
+    (0, -1): 270,
+    (-1, -1): 315
+}
+
+#
+# this function returns the direction, in degrees, of the cell from row, col
+# to to_row, to_col.
+#
+#   +-----+-----+-----+
+#   | 315 |  0  | 45  |
+#   +-----+-----+-----+
+#   | 270 |     | 90  |
+#   +-----+-----+-----+
+#   | 225 | 180 | 135 |
+#   +-----+-----+-----+
+#
+def direction(row, col, to_row, to_col):
+    return directions[(to_row - row, to_col - col)]
+
 def fire_slope(dH, scale):
     H = m.sqrt(dH * dH + scale * scale)
     return clamper(1 + 30*m.sin(dH / H))
@@ -79,15 +105,10 @@ class MySim(GfxEngine):
                     # calculate the slope between the current cell and the other cell
                     slope = (self.model.get_height(other_row, other_col) - self.model.get_height(row, col)) / self.model.get_parameter_value("scale")
           
-                    # calculate the final probability of fire spreading
-                    
-                    d_row = other_row - row
-                    d_col = other_col - col
-                    
-                    theta = (m.acos(d_row) * 180) / m.pi
-                    
-                    print("d_row %d, d_col %d, theta %f, wind direction %f" % (d_row, d_col, theta, self.model.get_parameter_value("wind_direction")))
-                    
+                    # calculate the final probability of fire spreading                
+                    wind_direction = self.model.get_parameter_value("wind_direction")
+                    cell_direction = direction(row, col, other_row, other_col)
+    
                     prob_wind = 1 #fire_wind(self.model.get_parameter_value("wind_direction"))
 
                     prob_slope = 0.01 if slope < 0 else 1 
